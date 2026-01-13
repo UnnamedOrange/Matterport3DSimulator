@@ -13,8 +13,8 @@ namespace mattersim {
 
 
 NavGraph::Location::Location(const Json::Value& viewpoint, const std::string& skyboxDir, 
-        bool preload, bool depth): skyboxDir(skyboxDir), im_loaded(false), 
-                                   includeDepth(depth), cubemap_texture(0), depth_texture(0) {
+        bool preload, bool depth): cubemap_texture(0), depth_texture(0), im_loaded(false),
+                                   includeDepth(depth), keepImages(preload), skyboxDir(skyboxDir) {
 
     viewpointId = viewpoint["image_id"].asString();
     included = viewpoint["included"].asBool();
@@ -118,6 +118,26 @@ void NavGraph::Location::loadCubemapTextures() {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RED, znegD.rows, znegD.cols, 0, GL_RED, GL_UNSIGNED_SHORT, znegD.ptr());
         assertOpenGLError("Depth texture");
     }
+
+    if (!keepImages) {
+        unloadCubemapImages();
+    }
+}
+
+void NavGraph::Location::unloadCubemapImages() {
+    xpos.release();
+    xneg.release();
+    ypos.release();
+    yneg.release();
+    zpos.release();
+    zneg.release();
+    xposD.release();
+    xnegD.release();
+    yposD.release();
+    ynegD.release();
+    zposD.release();
+    znegD.release();
+    im_loaded = false;
 }
 
 
